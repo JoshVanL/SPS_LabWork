@@ -1,0 +1,14 @@
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+\begin{align}
+p(D|\theta) &= \prod_i \mathcal{N}(d_i|\theta, 0.25)\\
+&= \prod_i \frac{2}{\sqrt{2 \pi}} e^{-2(d_i - \mu)^2}\\
+ \ln p(D\theta) &= N\ln \frac{2}{\sqrt{2 \pi}}+ \sum_{i=1}^N-2(d_i-\mu)^2\\
+\frac{d}{d\mu}p(D|\theta) &= \sum_{i=1}^N-4(-1)(d_i-\mu_{ML})\\
+0 &= \sum_{i=1}^N(d_i=\mu_{ML})\\
+0 &= \sum_{i=1}^N(d_i-\mu_{ML})\\
+\mu_{ML} &= \frac{1}{N}\sum_{i=1}^Nd_i \\\\
+\mu_{ML} &= \bar{d}
+\end{align}
+\end{document}
