@@ -10,7 +10,6 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pylab as pylab
 pylab.rcParams['figure.figsize'] =  (32.0, 24.0)
 pylab.rcParams['font.size'] = 24
-import math
 
 
 fig = plt.figure()
@@ -18,8 +17,6 @@ ax = fig.add_subplot( 111  )
 data = np.loadtxt('data1.dat')
 
 def computeLikelihood(D, mu):
-	#px = np.array(2*math.exp(-2*(D-mu)**2)/sqrt(2*math.pi))
-#	return np.prod((2/(2*math.pi)**0.5)*math.exp(-2(D-mu)**2))
 	return np.prod(stats.norm.pdf(D, mu, 0.5))
 
 
