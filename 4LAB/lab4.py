@@ -32,7 +32,7 @@ muList = loopLikelihood(data)
 print('max p(D|mu) ', np.amax(muList))
 muML = np.mean(data)
 print('arg max mu P(D|mu) ', muML)
-pl = plt.plot(np.arange(0.0, 1.0, 0.001), muList)
+pl = plt.plot(np.arange(0.0, 1.0, 0.001), muList, 'r--')
 
 def computeProstieror(D, mu):
 	prior = stats.norm(0.5, 0.01**0.5).pdf(mu)
@@ -46,4 +46,6 @@ def loopPosterior(D):
 
 muMAP = loopPosterior(data)
 pl = plt.plot(np.arange(0.0, 1.0, 0.001), muMAP)
+plt.ylabel('probability')
+plt.xlabel('theta')
 plt.show()
