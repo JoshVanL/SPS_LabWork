@@ -10,52 +10,43 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pylab as pylab
 pylab.rcParams['figure.figsize'] =  (32.0, 24.0)
 pylab.rcParams['font.size'] = 24
+import math
 
 
 fig = plt.figure()
 ax = fig.add_subplot( 111  )
 data = np.loadtxt('data1.dat')
-#print(data)
-#print(data.size)
-#plt.hist(data, data.size, range=[np.amin(data)-0.5, np.amax(data)+0.5])
-#plt.show()
 
 def computeLikelihood(D, mu):
-	return np.prod(2*stats.norm.pdf(4*((D-mu))**2))
-	
+	#px = np.array(2*math.exp(-2*(D-mu)**2)/sqrt(2*math.pi))
+#	return np.prod((2/(2*math.pi)**0.5)*math.exp(-2(D-mu)**2))
+	return np.prod(stats.norm.pdf(D, mu, 0.5))
+
 
 num = computeLikelihood(data, 0)
-print(num)
 
 def loopLikelihood(D):
-#	muList = np.array()
 	muList = np.array([computeLikelihood(D, 0.0)])
 	for i in np.arange(0.001, 1.00, 0.001):
 		muList = np.concatenate((muList, [computeLikelihood(D, i)]))	
-	print(muList)
 	return muList
 
 muList = loopLikelihood(data)
-print(muList)
 print('max p(D|mu) ', np.amax(muList))
 muML = np.mean(data)
 print('arg max mu P(D|mu) ', muML)
-plt.plot(np.arange(0.0, 1.0, 0.001), muList)
+pl = plt.plot(np.arange(0.0, 1.0, 0.001), muList)
 
 def computeProstieror(D, mu):
-	#print(2*stats.norm.pdf(4*((D-mu))**2))
-	prior = stats.gamma.pdf(D, 0.5, 0.01)
-	return computeLikelihood(D, mu) * prior
+	prior = stats.norm(0.5, 0.01**0.5).pdf(mu)
+	return computeLikelihood(D, mu)*prior
 
 def loopPosterior(D):
-	muList = np.array([computeProstieror(D, 0.0)])
+	posList = np.array([computeProstieror(D, 0.0)])
 	for i in np.arange(0.001, 1.00, 0.001):
-		muList = np.concatenate((muList, [computeProstieror(D, i)]))	
-	#print(muList)
-	return muList
+		posList = np.concatenate((posList, [computeProstieror(D, i)]))	
+	return posList
 
 muMAP = loopPosterior(data)
-#muMAP = np.max(muMAP)
-print(muMAP)
-plt.plot(np.arange(0.0, 1.0, 0.001), muMAP)
+pl = plt.plot(np.arange(0.0, 1.0, 0.001), muMAP)
 plt.show()
