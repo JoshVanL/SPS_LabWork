@@ -86,9 +86,14 @@ ax.scatter(X3[:,0], X3[:,1], c='g')
 testData = np.loadtxt('testSet.dat')
 print(testData.shape)
 T = np.full((15, 2), 0.)
+
 for i in range(0,15):
     T[i] = np.array([data[i][0], data[i][3]])
+
 vec = cdist(T,fittedCenters, 'euclidean', p=2) 
+
+print(vec)
+
 P1 = np.empty((0,2))
 P2 = np.empty((0,2))
 P3 = np.empty((0,2))
