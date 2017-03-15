@@ -21,11 +21,14 @@ def plotmatrix(Matrix):
             plotID += 1
     plt.show()
 
-def kmeans(Data, NClusters):
-    km = KMeans(NClusters)
+def kimeans(Data, NClusters):
+    km = KMeans(NClusters, n_init=1)
     fitted = km.fit(Data)
     print(fitted)
     return (fitted.cluster_centers_, fitted.labels_, fitted.inertia_)
+
+def initList(num):
+    return [[] for x in range(num)]
 
 
 data = np.loadtxt('trainingSet.dat')
@@ -34,13 +37,23 @@ print(data.shape)
 
 #plotmatrix(data)
 
+NClusters = 3
+
+X = initList(NClusters)
 X = np.full((150, 2), 0.)
 for i in range(0,150):
     X[i] = np.array([data[i][0], data[i][3]])
 print(X)
 print(X.shape)
 
-classLabels = kmeans(X, 3)
+max = 0
+for i in range(600):
+    testing = kimeans(X, 3)
+    if(testing[2] >= max):
+        max = testing[2]
+        classLabels = testing
+
+
 print(classLabels)
 fittedLabels = (classLabels[1])
 print((fittedLabels.shape))
@@ -52,34 +65,36 @@ indices = np.array(np.where(fittedLabels ==0))
 indices = indices.reshape(indices.shape[1])
 X1 = np.arange(100.).reshape(50,2)
 print(indices.shape)
-for i in range(0, indices.shape[0]):
+for i in range(indices.shape[0]):
     X1[i] = X[indices[i]]
+print(X1)
 
 
 indices = np.array(np.where(fittedLabels ==1))
 indices = indices.reshape(indices.shape[1])
 X2 = np.arange(100.).reshape(50,2)
 print(indices.shape)
-for i in range(0, indices.shape[0]):
+for i in range(indices.shape[0]+1):
     X2[i] = X[indices[i]]
 
 
 indices = np.array(np.where(fittedLabels ==2))
 indices = indices.reshape(indices.shape[1])
-X3  = np.arange(100.).reshape(50,2)
+X3 = np.arange(100.).reshape(50,2)
 print(indices.shape)
-for i in range(0, indices.shape[0]):
+for i in range(indices.shape[0]+1):
     X3[i] = X[indices[i]]
+print("here")
 print(X1)
 print(X2)
 print(X3)
 
 
 fig = plt.figure()
-ax = fig.add_subplot( 111 )
-ax.scatter(X1[:,0], X1[:,1], c='b')
-ax.scatter(X2[:,0], X2[:,1], c='r')
-ax.scatter(X3[:,0], X3[:,1], c='g')
+bx = fig.add_subplot( 111 )
+bx.scatter(X1[:,0], X1[:,1], c='b')
+bx.scatter(X2[:,0], X2[:,1],c='r')
+bx.scatter(X3[:,0], X3[:,1],c='g')
 #plt.show()
 
 
@@ -115,12 +130,12 @@ print(P1)
 print(P2)
 print(P3)
 
-#fig = plt.figure()
-#ax = fig.add_subplot( 111 )
-ax.scatter(P1[:,0], P1[:,1], c='b', marker="*")
-ax.scatter(P2[:,0], P2[:,1], c='r', marker="*")
-ax.scatter(P3[:,0], P3[:,1], c='g', marker="*")
+#fig2 = plt.figure()
+bx = fig.add_subplot( 111 )
+bx.scatter(P1[:,0], P1[:,1], c='b', marker="*")
+bx.scatter(P2[:,0], P2[:,1], c='r', marker="*")
+bx.scatter(P3[:,0], P3[:,1], c='g', marker="*")
 vor1 = Voronoi(fittedCenters)
-voronoi_plot_2d(vor1, ax)
+voronoi_plot_2d(vor1, bx)
 plt.show()
-
+clusters = np.array([X1, X2, X3])
