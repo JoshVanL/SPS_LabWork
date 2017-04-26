@@ -7,8 +7,8 @@ from skimage import io
 import matplotlib.pyplot as plt
 import math
 # %matplotlib inline
-#from sklearn.neighbors import NearestNeighbors
-from sklearn import neighbors, datasets
+from sklearn.neighbors import NearestNeighbors
+#from sklearn import neighbors, datasets
 
 from sklearn.cluster import KMeans
 from matplotlib.colors import ListedColormap
@@ -31,6 +31,9 @@ qV = np.zeros((400, 640))
 qS = np.zeros((400, 640))
 qT = np.zeros((400, 640))
 Magqs = np.zeros((400, 640))
+PhaseqV = np.zeros((400, 640))
+PhaseqT = np.zeros((400, 640))
+PhaseqS = np.zeros((400, 640))
 y=[]
 
 
@@ -56,6 +59,10 @@ for i in range(1,11):
     qs = np.concatenate((qs, q), axis=0)
     qV = np.concatenate((qV, q), axis=0)
     Magqs = np.concatenate((Magqs, Magq), axis=0)
+    if (i == 1) :
+        qV = q
+    else :
+        qV = np.concatenate((qV, q), axis=0)
 
 
     # ax1.imshow( np.log( np.absolute(q) + 1 ), cmap='gray' ) # io.
@@ -89,6 +96,10 @@ for i in range(1,11):
     qs = np.concatenate((qs, q), axis=0)
     qT = np.concatenate((qT, q), axis=0)
     Magqs = np.concatenate((Magqs, Magq), axis=0)
+    if (i == 1) :
+        qT = q
+    else :
+        qT = np.concatenate((qT, q), axis=0)
 
 for i in range(1,11):
     f = io.imread('chars/S' + str(i) + '.GIF')   # read in image
@@ -110,24 +121,29 @@ for i in range(1,11):
     qs = np.concatenate((qs, q), axis=0)
     qS = np.concatenate((qS, q), axis=0)
     Magqs = np.concatenate((Magqs, Magq), axis=0)
+    if (i == 1) :
+        qS = q
+    else :
+        qS = np.concatenate((qS, q), axis=0)
 
 def spectralRegion(data, index):
     feature1 = []
     feature2 = []
     label = []
     center = (round(data.shape[0]/2), round(data.shape[1]/2))
-    for i in range (round(data.shape[0]/2)):
-        for j in range(data.shape[1]):
-            if (center[1] > j):
-                mag = np.absolute(data[i][j])
-                if (mag != 0):
-                    if (j != 0):
-                        if (math.tan(i/j) <= (math.pi/4)):
-                            feature1.append(mag)
-                            y.append(index)
-                    if (i != 0):
-                        if (math.tan(j/i) <= (math.pi/4)):
-                            feature2.append(mag)
+    for j in range (round(data.shape[1]/2)):
+        for i in range(data.shape[0]):
+            mag = np.absolute(data[i][j])
+            if (mag != 0):
+                n = center[0] - i
+                m = center[1] - j
+                if (j != 0):
+                    if (math.tan(i/j) >= (math.pi/8) and  math.tan(i/j) <= (math.pi/4 + math.pi/8)):
+                        feature1.append(mag)
+                if (i != 0):
+                    if (math.tan(j/i) >= (math.pi/8) and math.tan(j/i) <= (math.pi/4 + math.pi/8)):
+                        feature2.append(mag)
+                        y.append(index)
     #print(feature1)
     #print(feature2)
     f = list(map(lambda x, y: [x,y], feature1, feature2))
@@ -153,16 +169,16 @@ def spectralRegion(data, index):
 #print(q.shape)
 
 #qS = np.concatenate((qS, q), axis=0)
-#y = []
+y = []
 featureV = spectralRegion(qV, 0)
 featureT = spectralRegion(qT, 1)
 featureS = spectralRegion(qS, 2)
-#for i in range(0, featureV.shape[1]):
-#    y[i] = 0
-#for i in range(featureV.shape[1], featureT.shape[1]):
-#    y[i] = 1
-#for i in range(featureV.shape[1] + featureT.shape[1], featureS.shape[1]):
-#    y[i] = 2
+#for i in range(0, featureV.shape[0]):
+#    y.append(0)
+#for i in range(featureV.shape[0], featureT.shape[0]):
+#    y.append(1)
+#for i in range(featureV.shape[0] + featureT.shape[0], featureS.shape[0]):
+#    y.append(2)
 features = featureV
 features = np.concatenate((features, featureT), axis=0)
 features = np.concatenate((features, featureS), axis=0)
@@ -183,28 +199,29 @@ cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
 cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
 # we create an instance of Neighbours Classifier and fit the data.
-clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance')
-clf.fit(features, y)
-
+#clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
+#clf.fit(features, y)
+clf = NearestNeighbors(n_neighbors=15)
+clf.fit(features) 
 # Plot the decision boundary. For that, we will assign a color to each
 # point in the mesh [x_min, x_max]x[y_min, y_max].
-x_min, x_max = features[:, 0].min() - 1, features[:, 0].max() + 1
-y_min, y_max = features[:, 1].min() - 1, features[:, 1].max() + 1
+x_min, x_max = features[:, 0].min() - 1, (features[:, 0].max() + 1)
+y_min, y_max = features[:, 1].min() - 1, (features[:, 1].max() + 1)
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
                      np.arange(y_min, y_max, h))
-Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-
+#Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])
+Z = neigh.kneighbors_graph(features)
 # Put the result into a color plot
 Z = Z.reshape(xx.shape)
 plt.figure()
 plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 # Plot also the training points
-plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
-plt.xlim(xx.min(), xx.max())
-plt.ylim(yy.min(), yy.max())
-plt.title("3-Class classification (k = %i, weights = '%s')"
-          % (n_neighbors, 'distance'))
+#plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
+#plt.xlim(xx.min(), xx.max())
+#plt.ylim(yy.min(), yy.max())
+#plt.title("3-Class classification (k = %i, weights = '%s')"
+#          % (n_neighbors, 'distance'))
 
 plt.show()
 
