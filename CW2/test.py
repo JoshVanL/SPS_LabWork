@@ -124,13 +124,10 @@ for char,i in zip(data_split, range(3)):
     mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
 def normalise(matrix):
-    col1 = list(itertools.chain(*(matrix[:,0].tolist())))
-    col2 = list(itertools.chain(*(matrix[:,1].tolist())))
-    col1_norm = col1/ np.linalg.norm(col1)
-    col2_norm = col2/ np.linalg.norm(col2)
-    m = [[],[]]
-    m[0] = col1_norm
-    m[1] = col2_norm
+    m   = [[] for x in range(2)]
+    for i in range (2):
+        c      = list(itertools.chain(*(matrix[:,i].tolist())))
+        m[i]   = c/ np.linalg.norm(c)
     return np.matrix(m).T
 
 
