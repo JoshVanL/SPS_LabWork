@@ -36,7 +36,8 @@ def read(char_name):
     q      = np.fft.fftshift(z)         # puts u=0,v=0 in the centre
     Magq   =  np.absolute(q)         # magnitude spectrum
     Phaseq = np.angle(q)           # phase spectrum
-    return Magq
+    # return Magq
+    return q
 
 
 
@@ -50,13 +51,17 @@ def slice(old_matrix):
 
 #generates a matrix of magnitudes of all characters
 def gen_train_data():
-    mag = np.zeros((200,640))
+    # mag = np.zeros((200,640))
+    q = np.zeros((200,640))
     for c in ['V','T','S']:
         for i in range(1,11):
-            mag = np.concatenate((mag, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
+            # mag = np.concatenate((mag, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
+            q = np.concatenate((q, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
 
-    mag = mag[200:,:] #getting rid of the zero rows added at the beg of this function
-    return mag
+    # mag = mag[200:,:] #getting rid of the zero rows added at the beg of this function
+    # return mag
+    q = q[200:,:] #getting rid of the zero rows added at the beg of this function
+    return q
 
 
 
@@ -65,10 +70,13 @@ def gen_train_data():
 def split(matrix):
     char_type    = matrix.shape[0]
     step         = round(matrix.shape[0] / 3)
-    mags         = [[] for x in range(char_type)]
+    # mags         = [[] for x in range(char_type)]
+    qs           = [[] for x in range(char_type)]
     for i,s in zip(range(char_type), range(0, char_type, step)):
         mags[i]  = matrix[s:(s+step)]
-    return mags
+        qs[i]    = matrix[s:(s+step)]
+    # return mags
+    return qs
 
 
 def spectralRegion(data):
@@ -97,9 +105,7 @@ def spectralRegion(data):
 
 
 data = gen_train_data()
-print(data.shape)
 data_split = split(data)
-print(data_split[0].shape)
 
 features = spectralRegion(data)
 print(features)
@@ -128,7 +134,7 @@ cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 #clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
 #clf.fit(features, y)
 clf = NearestNeighbors(n_neighbors=15)
-clf.fit(features) 
+clf.fit(features)
 # Plot the decision boundary. For that, we will assign a color to each
 # point in the mesh [x_min, x_max]x[y_min, y_max].
 x_min, x_max = features[:, 0].min() - 1, (features[:, 0].max() + 1)
