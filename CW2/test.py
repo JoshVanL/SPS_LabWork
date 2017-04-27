@@ -75,7 +75,7 @@ def split(matrix):
     # mags         = [[] for x in range(char_type)]
     qs           = [[] for x in range(char_type)]
     for i,s in zip(range(char_type), range(0, char_type, step)):
-        mags[i]  = matrix[s:(s+step)]
+        # mags[i]  = matrix[s:(s+step)]
         qs[i]    = matrix[s:(s+step)]
     # return mags
     return qs
@@ -96,7 +96,7 @@ def spectralRegion(data):
                         ( math.tan(n/m) <=    math.pi/8)):
                             feature1.append(mag)
 
-                    if (( math.tan(n/m) <= (3*math.pi/8) and  math.tan(n/m) >= (math.pi/8)):
+                    if ( (math.tan(n/m) <= (3*math.pi/8)) and  math.tan(n/m) >= (math.pi/8)):
                             feature2.append(mag)
 
                 if (n != 0):
@@ -104,7 +104,7 @@ def spectralRegion(data):
                          (math.tan(m/n) <=    math.pi/8)):
                             feature1.append(mag)
 
-                    if (( math.tan(m/n) <= (3*math.pi/8) and  math.tan(m/n) >= (math.pi/8)):
+                    if (( math.tan(m/n) <= (3*math.pi/8)) and  math.tan(m/n) >= (math.pi/8)):
                             feature2.append(mag)
 
     f = list(map(lambda x, y: [x,y], feature1, feature2))
@@ -117,10 +117,10 @@ data_split = split(data)
 
 
 #getting feature matrix for each char
-features     = [[] for x in range(char_type)]
+features     = [[] for x in range(3)]
 mfeatures     = np.matrix(np.zeros((1,2)))
 for char,i in zip(data_split, range(3)):
-    features[i] = spectralRegion(char))
+    features[i] = spectralRegion(char)
     mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
 print(mfeatures)
