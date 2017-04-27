@@ -10,7 +10,8 @@ import numpy                  as np
 import matplotlib.pyplot      as plt
 import itertools
 import math
-
+from matplotlib.colors import ListedColormap
+from sklearn import neighbors, datasets
 
 #%matplotlib inline
 
@@ -115,7 +116,6 @@ def spectralRegion(data):
 data = gen_train_data()
 data_split = split(data)
 
-
 #getting feature matrix for each char
 features     = [[] for x in range(3)]
 mfeatures     = np.matrix(np.zeros((1,2)))
@@ -123,7 +123,10 @@ for char,i in zip(data_split, range(3)):
     features[i] = spectralRegion(char)
     mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
+y = list(map(lambda x, y: [x]*y, [0,1,2], [features[0].shape[0], features[1].shape[0], features[2].shape[0]]))
 mfeatures = mfeatures[1:,:]
+
+labels = list(itertools.chain(*y))
 print(mfeatures)
 
 
@@ -133,43 +136,43 @@ print(mfeatures)
 # # since a forier space is being analyzed, there is no need to look at the whole image for the forier conjugate symmetry.
 # # this implies, the forier image can be cut in half and only one part needs to be analysed e,g. only first 200 rows
 #
+
+n_neighbors = 15
+
+# import some data to play with
+#X = iris.data[:, :2]  # we only take the first two features. We could
+                      # avoid this ugly slicing by using a two-dim dataset
+#y = k[1]
 #
-# n_neighbors = 15
-#
-# # import some data to play with
-# #X = iris.data[:, :2]  # we only take the first two features. We could
-#                       # avoid this ugly slicing by using a two-dim dataset
-# #y = k[1]
-# #
-# h = 1000  # step size in the mesh
-#
-# # Create color maps
-# cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
-# cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
-#
-# # we create an instance of Neighbours Classifier and fit the data.
-# #clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
-# #clf.fit(features, y)
-# clf = NearestNeighbors(n_neighbors=15)
-# clf.fit(features)
-# # Plot the decision boundary. For that, we will assign a color to each
-# # point in the mesh [x_min, x_max]x[y_min, y_max].
-# x_min, x_max = features[:, 0].min() - 1, (features[:, 0].max() + 1)
-# y_min, y_max = features[:, 1].min() - 1, (features[:, 1].max() + 1)
-# xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
-#                      np.arange(y_min, y_max, h))
-# #Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])
-# Z = neigh.kneighbors_graph(features)
-# # Put the result into a color plot
-# Z = Z.reshape(xx.shape)
-# plt.figure()
-# plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
-#
-# # Plot also the training points
-# #plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
-# #plt.xlim(xx.min(), xx.max())
-# #plt.ylim(yy.min(), yy.max())
-# #plt.title("3-Class classification (k = %i, weights = '%s')"
-# #          % (n_neighbors, 'distance'))
-#
-# plt.show()
+h = 10000  # step size in the mesh
+
+# Create color maps
+cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+
+# we create an instance of Neighbours Classifier and fit the data.
+clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
+clf.fit(mfeatures, labels)
+#clf = NearestNeighbors(n_neighbors=15)
+#clf.fit(mfeatures)
+# Plot the decision boundary. For that, we will assign a color to each
+# point in the mesh [x_min, x_max]x[y_min, y_max].
+x_min, x_max = mfeatures[:, 0].min() - 1, (mfeatures[:, 0].max() + 1)
+y_min, y_max = mfeatures[:, 1].min() - 1, (mfeatures[:, 1].max() + 1)
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                     np.arange(y_min, y_max, h))
+Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])
+#Z = neigh.kneighbors_graph(mfeatures)
+# Put the result into a color plot
+Z = Z.reshape(xx.shape)
+plt.figure()
+plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+# Plot also the training points
+#plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
+#plt.xlim(xx.min(), xx.max())
+#plt.ylim(yy.min(), yy.max())
+#plt.title("3-Class classification (k = %i, weights = '%s')"
+#          % (n_neighbors, 'distance'))
+
+plt.show()
