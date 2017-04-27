@@ -123,6 +123,7 @@ for char,i in zip(data_split, range(3)):
     features[i] = spectralRegion(char)
     mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
+mfeatures = mfeatures[1:,:]
 print(mfeatures)
 
 
