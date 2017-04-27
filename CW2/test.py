@@ -117,25 +117,28 @@ data = gen_train_data()
 data_split = split(data)
 
 #getting feature matrix for each char
-features     = [[] for x in range(3)]
-mfeatures     = np.matrix(np.zeros((1,2)))
+features        = [[] for x in range(3)]
+mfeatures       = np.matrix(np.zeros((1,2)))
 for char,i in zip(data_split, range(3)):
     features[i] = spectralRegion(char)
     mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
+def normalise(matrix):
+    col1 = list(itertools.chain(*(matrix[:,0].tolist())))
+    col2 = list(itertools.chain(*(matrix[:,1].tolist())))
+    col1_norm = col1/ np.linalg.norm(col1)
+    col2_norm = col2/ np.linalg.norm(col2)
+    m = [[],[]]
+    m[0] = col1_norm
+    m[1] = col2_norm
+    return np.matrix(m).T
+
+
 y = list(map(lambda x, y: [x]*y, [0,1,2], [features[0].shape[0], features[1].shape[0], features[2].shape[0]]))
 mfeatures = mfeatures[1:,:]
-
 labels = list(itertools.chain(*y))
-print(mfeatures)
 
 
-#
-# #shape is (400,640) - 400 rows , 640 columns
-# #mac shows that image dimensions are (640,400) 640 x-values(columns)m 400 y-values(rows)
-# # since a forier space is being analyzed, there is no need to look at the whole image for the forier conjugate symmetry.
-# # this implies, the forier image can be cut in half and only one part needs to be analysed e,g. only first 200 rows
-#
 
 n_neighbors = 15
 
@@ -148,7 +151,7 @@ h = 10000  # step size in the mesh
 
 # Create color maps
 cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
-cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
 # we create an instance of Neighbours Classifier and fit the data.
 clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
@@ -168,11 +171,11 @@ Z = Z.reshape(xx.shape)
 plt.figure()
 plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
-# Plot also the training points
-#plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
-#plt.xlim(xx.min(), xx.max())
-#plt.ylim(yy.min(), yy.max())
-#plt.title("3-Class classification (k = %i, weights = '%s')"
-#          % (n_neighbors, 'distance'))
+Plot also the training points
+plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
+plt.xlim(xx.min(), xx.max())
+plt.ylim(yy.min(), yy.max())
+plt.title("3-Class classification (k = %i, weights = '%s')"
+         % (n_neighbors, 'distance'))
 
 plt.show()
