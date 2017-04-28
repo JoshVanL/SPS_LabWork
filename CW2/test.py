@@ -99,6 +99,9 @@ def split(matrix):
     step         = round(matrix.shape[0] / 3)
     # qs           = [[] for x in range(char_type)]
     mag          = [[] for x in range(char_type)]
+    average_mag  = [[[] for x in range(matrix.shape[1])] for y in range(3)]
+    print("average_mag")
+    print (average_mag)
 
     for i,s in zip(range(char_type), range(0, char_type, step)):
         # qs[i]       = matrix[s:(s+step)]
@@ -109,9 +112,8 @@ def split(matrix):
         t           = np.matrix(t.T[1:,:])
         # average_mag = list(map(lambda x: x/t.shape[0], t))[0]
         #calc sum of each column and divide by the number of rows, add it to a list
-        average_mag = [[] for x in range(matrix.shape[1])]
         for col,col_num in zip(t.T, range(matrix.shape[1])) : #looping through columns
-            average_mag[col_num] = np.sum(col)/t.shape[0]
+            average_mag[i][col_num] = np.sum(col)/t.shape[0]
         print(' ')
         print(' ')
         print ("t:")
@@ -121,7 +123,8 @@ def split(matrix):
         print(average_mag)
         print(' ')
         print(' ')
-
+    print('Average magnitude at the end ')
+    print(average_mag)
     return mag
 
 
