@@ -16,21 +16,6 @@ from sklearn import neighbors, datasets
 #%matplotlib inline
 
 
-
-def plotmatrix(Matrix):
-    r, c   = Matrix.shape
-    fig    = plt.figure()
-    plotID = 1
-    for i in range(c):
-        for j in range(c):
-            ax = fig.add_subplot( c, c, plotID )
-            ax.scatter( Matrix[:,i], Matrix[:,j] )
-            plotID += 1
-    print('about to show')
-    plt.show()
-
-
-
 #generates fourier space
 def read(char_name):
     f      = io.imread(char_name)   # read in image
@@ -73,13 +58,30 @@ def gen_train_data():
 def split(matrix):
     char_type    = matrix.shape[0]
     step         = round(matrix.shape[0] / 3)
-    # mags         = [[] for x in range(char_type)]
     qs           = [[] for x in range(char_type)]
+
+#uncommented for now as not sure whether works properly
+#double check the positions as transpose func is applied to t.
     for i,s in zip(range(char_type), range(0, char_type, step)):
-        # mags[i]  = matrix[s:(s+step)]
-        qs[i]    = matrix[s:(s+step)]
-    # return mags
+        qs[i]       = matrix[s:(s+step)]
+    #     #using stack to correlate each qs[0][0][0]to qs[0][1][0], qs[0][2][0] etc
+    #     t           = [0]*640
+    #     for sample in qs[i]:
+    #         t       = np.column_stack((t, sample))
+    #     #removing the zero row that is no longer necessery
+    #     t           = np.matrix(t.T[1:,:])
+    #     #calculating average magnitude of things for a class e.g. "S" char etc
+    #     average_mag = list(map(lambda x: np.absolute(x)/t.shape[0], t))[0]
+    #     print ("T")
+    #     print(t)
+    #     print(' ')
+    #     print('Average magnitude ')
+    #     print(average_mag)
+
     return qs
+
+
+# def average (data):
 
 
 def spectralRegion(data):
@@ -113,15 +115,6 @@ def spectralRegion(data):
     return features
 
 
-data = gen_train_data()
-data_split = split(data)
-
-#getting feature matrix for each char
-features        = [[] for x in range(3)]
-mfeatures       = np.matrix(np.zeros((1,2)))
-for char,i in zip(data_split, range(3)):
-    features[i] = spectralRegion(char)
-    mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
 def normalise(matrix):
     m   = [[] for x in range(2)]
@@ -129,6 +122,18 @@ def normalise(matrix):
         c      = list(itertools.chain(*(matrix[:,i].tolist())))
         m[i]   = c/ np.linalg.norm(c)
     return np.matrix(m).T
+
+
+
+data            = gen_train_data()
+data_split      = split(data) #contains all chars' fourier space
+#getting feature matrix for each char
+features        = [[] for x in range(3)]
+mfeatures       = np.matrix(np.zeros((1,2)))
+for char,i in zip(data_split, range(3)):
+    features[i] = spectralRegion(char)   #contains features info of 10 samples of a particular char
+    mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
+
 
 
 y = list(map(lambda x, y: [x]*y, [0,1,2], [features[0].shape[0], features[1].shape[0], features[2].shape[0]]))
@@ -147,32 +152,35 @@ n_neighbors = 15
 h = 10000  # step size in the mesh
 
 # Create color maps
-cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
-cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+# cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+# cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+
+# print(mfeatures)
 
 # we create an instance of Neighbours Classifier and fit the data.
-clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
-clf.fit(mfeatures, labels)
+# clf = neighbors.KNeighborsClassifier(n_neighbors, weights='distance', n_jobs=-1)
+# clf.fit(mfeatures, labels)
 #clf = NearestNeighbors(n_neighbors=15)
 #clf.fit(mfeatures)
 # Plot the decision boundary. For that, we will assign a color to each
 # point in the mesh [x_min, x_max]x[y_min, y_max].
-x_min, x_max = mfeatures[:, 0].min() - 1, (mfeatures[:, 0].max() + 1)
-y_min, y_max = mfeatures[:, 1].min() - 1, (mfeatures[:, 1].max() + 1)
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
-                     np.arange(y_min, y_max, h))
-Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])
+# x_min, x_max = mfeatures[:, 0].min() - 1, (mfeatures[:, 0].max() + 1)
+# y_min, y_max = mfeatures[:, 1].min() - 1, (mfeatures[:, 1].max() + 1)
+# xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+#                      np.arange(y_min, y_max, h))
+# Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])
+
 #Z = neigh.kneighbors_graph(mfeatures)
 # Put the result into a color plot
-Z = Z.reshape(xx.shape)
-plt.figure()
-plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
-
-Plot also the training points
-plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
-plt.xlim(xx.min(), xx.max())
-plt.ylim(yy.min(), yy.max())
-plt.title("3-Class classification (k = %i, weights = '%s')"
-         % (n_neighbors, 'distance'))
-
-plt.show()
+# Z = Z.reshape(xx.shape)
+# plt.figure()
+# plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+#
+# Plot also the training points
+# plt.scatter(features[:, 0], features[:, 1], c=y, cmap=cmap_bold)
+# plt.xlim(xx.min(), xx.max())
+# plt.ylim(yy.min(), yy.max())
+# plt.title("3-Class classification (k = %i, weights = '%s')"
+#          % (n_neighbors, 'distance'))
+#
+# plt.show()
