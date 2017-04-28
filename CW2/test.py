@@ -109,8 +109,6 @@ targets = np.zeros(30)
 
 
 
-
-
 for i in range(len(labels)):
     if (labels[i] == 'V'):
         targets[i] = 0
@@ -124,8 +122,13 @@ print(norm)
 print(targets)
 
 
-
-
+aChar = read("test/A1.GIF")
+aFeat = extract_features(aChar)
+bChar = read("test/B1.GIF")
+bFeat = extract_features(bChar)
+test = np.vstack((aFeat, bFeat))
+aNorm = test / test.max(axis=0)
+print(aNorm)
 
 clf = KNeighborsClassifier(n_neighbors=10)
 clf.fit(norm, targets)
@@ -147,21 +150,14 @@ plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 plt.scatter(norm[:, 0], norm[:, 1], c=targets, cmap=cmap_bold)
 
+plt.scatter(aNorm[:, 0], aNorm[:, 1], c="y", cmap=cmap_bold, marker="*", s=500)
+
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 
 plt.xlabel("sector 1", fontsize=18)
 plt.ylabel("sector 2", fontsize=18)
 
-
-aChar = read("test/A1.GIF")
-aFeat = extract_features(aChar)
-bChar = read("test/B1.GIF")
-bFeat = extract_features(bChar)
-test = np.vstack((aFeat, bFeat))
-aNorm = test / test.max(axis=0)
-print(aNorm)
-plt.scatter(aNorm[:, 0], aNorm[:, 1], c="teal", cmap=cmap_bold, marker="*")
 
 
 plt.show()
