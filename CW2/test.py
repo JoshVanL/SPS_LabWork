@@ -150,11 +150,11 @@ for i in range(len(labelsT)):
 
 for i in range(len(labels)):
     if (labels[i] == 'V'):
-        targets[i] = 0
+        targets[i] = 0 #blue
     if (labels[i] == 'T'):
-        targets[i] = 1
+        targets[i] = 1 #green
     if (labels[i] == 'S'):
-        targets[i] = 2
+        targets[i] = 2 #red
 
 norm = f / 10000
 print(norm)
@@ -175,13 +175,13 @@ print(aNorm)
 fe1 = 0
 fe2 = 3
 
-clf = KNeighborsClassifier(n_neighbors=1)
+clf = KNeighborsClassifier(n_neighbors=5)
 clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
 
 
-x_min, x_max = norm[:, fe1].min() - 12, norm[:, fe1].max() + 12
-y_min, y_max = norm[:, fe2].min() - 12, norm[:, fe2].max() + 12
+x_min, x_max = norm[:, fe1].min() - 5, norm[:, fe1].max() + 5
+y_min, y_max = norm[:, fe2].min() - 5, norm[:, fe2].max() + 5
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
                      np.arange(y_min, y_max, h))
 Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
@@ -194,15 +194,17 @@ cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
 plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
+#red - S
+
 plt.scatter(norm[:, fe1], norm[:, fe2], c=targets, cmap=cmap_bold)
-plt.scatter(normT[:, fe1], normT[:, fe2], c=targetsT, cmap=cmap_bold, marker="*")
+plt.scatter(normT[:, fe1], normT[:, fe2], c=targetsT, cmap=cmap_bold, marker="*", s=100)
 #plt.scatter(aNorm[:, fe1], aNorm[:, fe2], c="y", cmap=cmap_bold, marker="*", s=500)
 
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 
 plt.xlabel("feature " + str(fe1), fontsize=18)
-plt.ylabel("sector 2" + str(fe2), fontsize=18)
+plt.ylabel("feature " + str(fe2), fontsize=18)
 
 
 plt.show()
