@@ -1,4 +1,3 @@
-
 from   __future__             import print_function
 from   sklearn.cluster        import KMeans
 from   scipy.spatial.distance import cdist
@@ -117,7 +116,7 @@ for i in range(len(labels)):
     if (labels[i] == 'S'):
         targets[i] = 2
 
-norm = f / f.max(axis=0)
+norm = f / 10000
 print(norm)
 print(targets)
 
@@ -127,15 +126,15 @@ aFeat = extract_features(aChar)
 bChar = read("test/B1.GIF")
 bFeat = extract_features(bChar)
 test = np.vstack((aFeat, bFeat))
-aNorm = test / test.max(axis=0)
+aNorm = test / 10000
 print(aNorm)
 
 clf = KNeighborsClassifier(n_neighbors=10)
 clf.fit(norm, targets)
-h = 0.001  # step size in the mesh
+h = 0.01  # step size in the mesh
 
-x_min, x_max = norm[:, 0].min() - .1, norm[:, 0].max() + .1
-y_min, y_max = norm[:, 1].min() - .1, norm[:, 1].max() + .1
+x_min, x_max = norm[:, 0].min() - 5, norm[:, 0].max() + 5
+y_min, y_max = norm[:, 1].min() - 5, norm[:, 1].max() + 5
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
                      np.arange(y_min, y_max, h))
 Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
@@ -157,7 +156,6 @@ plt.ylim(y_min, y_max)
 
 plt.xlabel("sector 1", fontsize=18)
 plt.ylabel("sector 2", fontsize=18)
-
 
 
 plt.show()
