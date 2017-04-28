@@ -20,94 +20,6 @@ def kimeans(Data, NClusters):
     fitted = km.fit(Data)
     return (fitted.cluster_centers_, fitted.labels_, fitted.inertia_)
 
-<<<<<<< HEAD
-=======
-
-def plotmatrix(Matrix):
-    r, c   = Matrix.shape
-    fig    = plt.figure()
-    plotID = 1
-    for i in range(c):
-        for j in range(c):
-            ax = fig.add_subplot( c, c, plotID )
-            ax.scatter( Matrix[:,i], Matrix[:,j] )
-            plotID += 1
-    plt.show()
-
-
-
->>>>>>> 4c891b8e068181e89d9fdfabbfc0e63ac65b7560
-#generates fourier space
-def read(char_name):
-    f      = io.imread(char_name)   # read in image
-    f_f    = np.array(f, dtype=float)
-    z      = np.fft.fft2(f_f)           # do fourier transform
-    q      = np.fft.fftshift(z)         # puts u=0,v=0 in the centre
-    Magq   =  np.absolute(q)         # magnitude spectrum
-    Phaseq = np.angle(q)           # phase spectrum
-    # return Magq
-    return q
-
-
-
-#fourier's conjugate symmetry => no need to consider the bottom of a char's f.space
-def slice(old_matrix):
-    factor     = old_matrix.shape[0]/2
-    new_matrix = old_matrix[:factor,:]
-    for i in range(new_matrix.shape[0]):
-        for j in range(new_matrix.shape[1]):
-            if (np.absolute(new_matrix[i][j]) < 10000):
-                new_matrix[i][j] = 0
-    return new_matrix
-
-
-
-#generates a matrix of magnitudes of all characters
-def gen_train_data():
-    # mag = np.zeros((200,640))
-    q = np.zeros((200,640))
-    for c in ['V','T','S']:
-        for i in range(1,11):
-            # mag = np.concatenate((mag, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
-            q = np.concatenate((q, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
-
-    # mag = mag[200:,:] #getting rid of the zero rows added at the beg of this function
-    # return mag
-    q = q[200:,:] #getting rid of the zero rows added at the beg of this function
-    return q
-
-
-
-#splits a matrix of all characters into "seperate" characters
-#e.g mags[0] might denote char 'S', m[1] - 'V', m[2] - 'V'
-def split(matrix):
-    char_type    = matrix.shape[0]
-    step         = round(matrix.shape[0] / 3)
-    qs           = [[] for x in range(char_type)]
-
-#uncommented for now as not sure whether works properly
-#double check the positions as the transpose func is applied to t.
-#return avrg magn
-    for i,s in zip(range(char_type), range(0, char_type, step)):
-        qs[i]       = matrix[s:(s+step)]
-    #     #using stack to correlate each qs[0][0][0]to qs[0][1][0], qs[0][2][0] etc
-    #     t           = [0]*640
-    #     for sample in qs[i]:
-    #         t       = np.column_stack((t, sample))
-    #     #removing the zero row that is no longer necessery
-    #     t           = np.matrix(t.T[1:,:])
-    #     #calculating average magnitude of things for a class e.g. "S" char etc
-    #     average_mag = list(map(lambda x: np.absolute(x)/t.shape[0], t))[0]
-    #     print ("T")
-    #     print(t)
-    #     print(' ')
-    #     print('Average magnitude ')
-    #     print(average_mag)
-
-    return qs
-
-
-# def average (data):
 
 
 def spectralRegion(data):
@@ -155,42 +67,122 @@ def normalise(matrix):
 
 
 
+#splits a matrix of all characters into "seperate" characters
+#e.g mags[0] might denote char 'S', m[1] - 'V', m[2] - 'V'
+def split(matrix):
+    char_type    = matrix.shape[0]
+    step         = round(matrix.shape[0] / 3)
+    # qs           = [[] for x in range(char_type)]
+    mag          = [[] for x in range(char_type)]
+
+    #uncommented for now as not sure whether works properly
+    #double check the positions as the transpose func is applied to t.
+    #return avrg magn
+    for i,s in zip(range(char_type), range(0, char_type, step)):
+        # qs[i]       = matrix[s:(s+step)]
+        mag[i]      = matrix[s:(s+step)]
+        #using stack to correlate each qs[0][0][0]to qs[0][1][0], qs[0][2][0] etc
+        t           = [0]*640
+        for sample in mag[i]:
+            t       = np.column_stack((t, sample))
+        #removing the zero row that is no longer necessery
+        t           = np.matrix(t.T[1:,:])
+        #calculating average magnitude of things for a class e.g. "S" char etc
+        average_mag = list(map(lambda x: x/t.shape[0], t))[0]
+        print ("T")
+        print(t)
+        print(' ')
+        print('Average magnitude ')
+        print(average_mag)
+
+    return mag
+
+
+
+#generates fourier space
+def read(char_name):
+    f      = io.imread(char_name)   # read in image
+    f_f    = np.array(f, dtype=float)
+    z      = np.fft.fft2(f_f)           # do fourier transform
+    q      = np.fft.fftshift(z)         # puts u=0,v=0 in the centre
+    Magq   =  np.absolute(q)         # magnitude spectrum
+    Phaseq = np.angle(q)           # phase spectrum
+    return Magq
+    # return q
+
+
+
+#fourier's conjugate symmetry => no need to consider the bottom of a char's f.space
+def slice(old_matrix):
+    factor     = old_matrix.shape[0]/2
+    new_matrix = old_matrix[:factor,:]
+    # for i in range(new_matrix.shape[0]):
+    #     for j in range(new_matrix.shape[1]):
+    #         if (np.absolute(new_matrix[i][j]) < 10000):
+    #             new_matrix[i][j] = 0
+    return new_matrix
+
+
+
+#generates a matrix of magnitudes of all characters
+def gen_train_data():
+    n = 0
+    mag = np.zeros((200,640))
+    # q = np.zeros((200,640))
+    for c in ['V','T','S']:
+        for i in range(1,11):
+            mag = np.concatenate((mag, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
+            # q = np.concatenate((q, slice(read("chars/" + c + str(i) + ".GIF"))), axis = 0)
+
+    mag = mag[200:,:] #getting rid of the zero rows added at the beg of this function
+    return mag
+    # q = q[200:,:] #getting rid of the zero rows added at the beg of this function
+    # return q
+
+
+
 data            = gen_train_data()
+print ("get_train_data returns magnitudes")
+print (data)
+print ("magnitude[0]]")
+print (data[0])
+print ("magnitude[1]]")
+print (data[1])
 data_split      = split(data) #contains all chars' fourier space
+
 #getting feature matrix for each char
-features        = [[] for x in range(3)]
-mfeatures       = np.matrix(np.zeros((1,2)))
-for char,i in zip(data_split, range(3)):
-    features[i] = spectralRegion(char)   #contains features info of 10 samples of a particular char
-    mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
+# features        = [[] for x in range(3)]
+# mfeatures       = np.matrix(np.zeros((1,2)))
+# for char,i in zip(data_split, range(3)):
+#     features[i] = spectralRegion(char)   #contains features info of 10 samples of a particular char
+#     mfeatures   = np.concatenate((mfeatures, features[i]), axis=0)
 
 
+#
+# y = list(map(lambda x, y: [x]*y, [0,1,2], [features[0].shape[0], features[1].shape[0], features[2].shape[0]]))
+# mfeatures = mfeatures[1:,:]
+# #mfeatures = normalise(mfeatures)
+# labels = list(itertools.chain(*y))
 
-y = list(map(lambda x, y: [x]*y, [0,1,2], [features[0].shape[0], features[1].shape[0], features[2].shape[0]]))
-mfeatures = mfeatures[1:,:]
-#mfeatures = normalise(mfeatures)
-labels = list(itertools.chain(*y))
+# k = kimeans(mfeatures, 3)
+# labels = k[1]
+#
+#
+# n_neighbors = 10
+# h = 1000
+#
+# knn=neighbors.KNeighborsClassifier(10).fit(mfeatures, labels)
+# x_min, x_max = mfeatures[:,0].min() - .5, mfeatures[:,0].max() + .5
+# y_min, y_max = mfeatures[:,1].min() - .5, mfeatures[:,1].max() + .5
+# xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+# Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
 
-k = kimeans(mfeatures, 3)
-labels = k[1]
-
-
-n_neighbors = 10
-h = 1000
-
-knn=neighbors.KNeighborsClassifier(10).fit(mfeatures, labels)
-x_min, x_max = mfeatures[:,0].min() - .5, mfeatures[:,0].max() + .5
-y_min, y_max = mfeatures[:,1].min() - .5, mfeatures[:,1].max() + .5
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
-
-<<<<<<< HEAD
 # import some data to play with
 #X = iris.data[:, :2]  # we only take the first two features. We could
                       # avoid this ugly slicing by using a two-dim dataset
 #y = k[1]
 #
-h = 10000  # step size in the mesh
+# h = 10000  # step size in the mesh
 
 # Create color maps
 # cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
@@ -225,24 +217,24 @@ h = 10000  # step size in the mesh
 #          % (n_neighbors, 'distance'))
 #
 # plt.show()
-=======
+
 # Put the result into a color plot
-Z = Z.reshape(xx.shape)
-plt.figure(1, figsize=(10, 7))
-plt.set_cmap(plt.cm.Paired)
-plt.pcolormesh(xx, yy, Z)
-
-# Plot also the training points
-plt.scatter(mfeatures[:,0], mfeatures[:,1],c=labels )
-plt.xlabel('Sepal length')
-plt.ylabel('Sepal width')
-
-plt.xlim(xx.min(), xx.max())
-plt.ylim(yy.min(), yy.max())
-plt.xticks(())
-plt.yticks(())
-
-plt.show()
+# Z = Z.reshape(xx.shape)
+# plt.figure(1, figsize=(10, 7))
+# plt.set_cmap(plt.cm.Paired)
+# plt.pcolormesh(xx, yy, Z)
+#
+# # Plot also the training points
+# plt.scatter(mfeatures[:,0], mfeatures[:,1],c=labels )
+# plt.xlabel('Sepal length')
+# plt.ylabel('Sepal width')
+#
+# plt.xlim(xx.min(), xx.max())
+# plt.ylim(yy.min(), yy.max())
+# plt.xticks(())
+# plt.yticks(())
+#
+# plt.show()
 # import some data to play wfeaturesfeaturesith
 #X = iris.data[:, :2]  # we only take the first two features. We could
                       # avoid this ugly slicing by using a two-dim dataset
@@ -280,4 +272,3 @@ plt.show()
 #         % (n_neighbors, 'distance'))
 #
 #plt.show()
->>>>>>> 4c891b8e068181e89d9fdfabbfc0e63ac65b7560
