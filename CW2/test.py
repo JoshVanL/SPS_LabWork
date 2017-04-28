@@ -169,7 +169,15 @@ aFeat = extract_features(aChar)
 bChar = read("test/B1.GIF")
 bFeat = extract_features(bChar)
 test = np.vstack((aFeat, bFeat))
-aNorm = test / 10000
+#aNorm = test / 10000
+print(aFeat)
+aNorm = np.empty(4)
+for i in range(4):
+    aNorm[i] = aFeat[i] / 10000
+bNorm = np.empty(4)
+for i in range(4):
+    bNorm[i] = bFeat[i] / 10000
+#aNorm = aFeat / 10000
 print(aNorm)
 
 fe1 = 0
@@ -198,7 +206,8 @@ plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 plt.scatter(norm[:, fe1], norm[:, fe2], c=targets, cmap=cmap_bold)
 plt.scatter(normT[:, fe1], normT[:, fe2], c=targetsT, cmap=cmap_bold, marker="*", s=100)
-#plt.scatter(aNorm[:, fe1], aNorm[:, fe2], c="y", cmap=cmap_bold, marker="*", s=500)
+plt.scatter(aNorm[fe1], aNorm[fe2], c="y", cmap=cmap_bold, marker="s", s=100) # A character
+plt.scatter(bNorm[fe1], bNorm[fe2], c="y", cmap=cmap_bold, marker="D", s=100) # B character
 
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
