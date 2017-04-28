@@ -158,10 +158,10 @@ aChar = read("test/A1.GIF")
 aFeat = extract_features(aChar)
 bChar = read("test/B1.GIF")
 bFeat = extract_features(bChar)
-print(aFeat)
-test = np.vstack(aChar, bChar)
+test = np.vstack((aFeat, bFeat))
 aNorm = test / test.max(axis=0)
-plt.scatter(test[:, 0], aFeat[:, 1], c="teal", cmap=cmap_bold, market="*")
+print(aNorm)
+plt.scatter(aNorm[:, 0], aNorm[:, 1], c="teal", cmap=cmap_bold, marker="*")
 
 
 plt.show()
