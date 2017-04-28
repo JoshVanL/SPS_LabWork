@@ -41,17 +41,17 @@ def sector1():
     xx, yy = polygon(x, y)
     n[xx, yy] = 1
 
-    #x = np.array([0, 100, 0])
-    #y = np.array([0, 0, 160])
-    #xx, yy = polygon(x, y)
-    #n[xx, yy] = 1
+    x = np.array([0, 100, 0])
+    y = np.array([0, 0, 160])
+    xx, yy = polygon(x, y)
+    n[xx, yy] = 1
 
-    #x = np.array([400, 300, 400])
-    #y = np.array([0, 0, 160])
-    #xx, yy = polygon(x, y)
-    #n[xx, yy] = 1
+    x = np.array([400, 300, 400])
+    y = np.array([0, 0, 160])
+    xx, yy = polygon(x, y)
+    n[xx, yy] = 1
 
-    plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    #plt.matshow(n, fignum=100, cmap=plt.cm.gray)
     #plt.show()
     return n
 
@@ -70,7 +70,7 @@ def sector2():
     xx, yy = polygon(x, y)
     n[xx, yy] = 1
 
-    plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    #plt.matshow(n, fignum=100, cmap=plt.cm.gray)
     #plt.show()
     return n
 
@@ -80,7 +80,7 @@ def bar():
     y = np.array([0, 00, 600, 600])
     xx, yy = polygon(x, y)
     n[xx, yy] = 1
-    plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    #plt.matshow(n, fignum=100, cmap=plt.cm.gray)
     #plt.show()
     return n
 
@@ -105,6 +105,17 @@ def get_characters_features():
             labels.append(c)
     return features, labels
 
+def get_myTest_characters_features():
+    mag = np.empty((400,640))
+    features = np.empty((0, 4))
+    labels = []
+    for c in ['V','T','S']:
+        for i in range(1,5):
+            mag = read("myTest/" + c + str(i) + ".GIF")
+            feat = extract_features(mag)
+            features = np.vstack((features, feat))
+            labels.append(c)
+    return features, labels
 
 
 def extract_features(mag):
@@ -126,7 +137,16 @@ def extract_features(mag):
 f, labels = get_characters_features()
 targets = np.zeros(30)
 
+t, labelsT = get_myTest_characters_features()
+targetsT = np.zeros(12)
 
+for i in range(len(labelsT)):
+    if (labelsT[i] == 'V'):
+        targetsT[i] = 0
+    if (labelsT[i] == 'T'):
+        targetsT[i] = 1
+    if (labelsT[i] == 'S'):
+        targetsT[i] = 2
 
 for i in range(len(labels)):
     if (labels[i] == 'V'):
@@ -140,6 +160,9 @@ norm = f / 10000
 print(norm)
 print(targets)
 
+normT = t / 10000
+print(normT)
+print(targetsT)
 
 aChar = read("test/A1.GIF")
 aFeat = extract_features(aChar)
@@ -152,13 +175,13 @@ print(aNorm)
 fe1 = 0
 fe2 = 3
 
-clf = KNeighborsClassifier(n_neighbors=5)
+clf = KNeighborsClassifier(n_neighbors=1)
 clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
 
 
-x_min, x_max = norm[:, fe1].min() - 5, norm[:, fe1].max() + 5
-y_min, y_max = norm[:, fe2].min() - 5, norm[:, fe2].max() + 5
+x_min, x_max = norm[:, fe1].min() - 12, norm[:, fe1].max() + 12
+y_min, y_max = norm[:, fe2].min() - 12, norm[:, fe2].max() + 12
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
                      np.arange(y_min, y_max, h))
 Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
@@ -172,15 +195,14 @@ cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 plt.scatter(norm[:, fe1], norm[:, fe2], c=targets, cmap=cmap_bold)
-
-plt.scatter(aNorm[:, fe1], aNorm[:, fe2], c="y", cmap=cmap_bold, marker="*", s=500)
+plt.scatter(normT[:, fe1], normT[:, fe2], c=targetsT, cmap=cmap_bold, marker="*")
+#plt.scatter(aNorm[:, fe1], aNorm[:, fe2], c="y", cmap=cmap_bold, marker="*", s=500)
 
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 
-plt.xlabel("sector 1", fontsize=18)
-plt.ylabel("sector 2", fontsize=18)
+plt.xlabel("feature " + str(fe1), fontsize=18)
+plt.ylabel("sector 2" + str(fe2), fontsize=18)
 
 
 plt.show()
-
