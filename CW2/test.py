@@ -11,7 +11,7 @@ import itertools
 import math
 from matplotlib.colors import ListedColormap
 from sklearn import neighbors, datasets
-from skimage.draw import polygon
+from skimage.draw import polygon, circle
 from sklearn.neighbors import KNeighborsClassifier
 
 
@@ -41,15 +41,15 @@ def sector1():
     xx, yy = polygon(x, y)
     n[xx, yy] = 1
 
-    x = np.array([0, 100, 0])
-    y = np.array([0, 0, 160])
-    xx, yy = polygon(x, y)
-    n[xx, yy] = 1
+    #x = np.array([0, 100, 0])
+    #y = np.array([0, 0, 160])
+    #xx, yy = polygon(x, y)
+    #n[xx, yy] = 1
 
-    x = np.array([400, 300, 400])
-    y = np.array([0, 0, 160])
-    xx, yy = polygon(x, y)
-    n[xx, yy] = 1
+    #x = np.array([400, 300, 400])
+    #y = np.array([0, 0, 160])
+    #xx, yy = polygon(x, y)
+    #n[xx, yy] = 1
 
     plt.matshow(n, fignum=100, cmap=plt.cm.gray)
     #plt.show()
@@ -74,12 +74,28 @@ def sector2():
     #plt.show()
     return n
 
+def bar():
+    n = np.zeros((400, 640), dtype=float)
+    x = np.array([170, 230, 230, 170])
+    y = np.array([0, 00, 600, 600])
+    xx, yy = polygon(x, y)
+    n[xx, yy] = 1
+    plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    #plt.show()
+    return n
 
-
+def ring():
+    n = np.zeros((400, 640), dtype=float)
+    xx, yy = circle(200, 320, 120)
+    n[xx, yy] = 1
+    xx, yy = circle(200, 320, 40)
+    n[xx, yy] = 0
+    plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    return n
 
 def get_characters_features():
     mag = np.empty((400,640))
-    features = np.empty((0, 2))
+    features = np.empty((0, 4))
     labels = []
     for c in ['V','T','S']:
         for i in range(1,11):
@@ -92,12 +108,16 @@ def get_characters_features():
 
 
 def extract_features(mag):
-    space = np.zeros((2, 400, 640))
-    sec1 = sector1()
-    sec2 = sector2()
+    space = np.zeros((4, 400, 640))
+    sec1  = sector1()
+    sec2  = sector2()
+    bar1  = bar()
+    ring1 = ring()
     space[0] = np.multiply(mag, sec1)
     space[1] = np.multiply(mag, sec2)
-    sumed = ([np.sum(space[0]), np.sum(space[1])])
+    space[2] = np.multiply(mag, bar1)
+    space[3] = np.multiply(mag, ring1)
+    sumed = ([np.sum(space[0]), np.sum(space[1]), np.sum(space[2]), np.sum(space[3])])
     return sumed
 
 
@@ -129,12 +149,16 @@ test = np.vstack((aFeat, bFeat))
 aNorm = test / 10000
 print(aNorm)
 
-clf = KNeighborsClassifier(n_neighbors=10)
-clf.fit(norm, targets)
+fe1 = 0
+fe2 = 3
+
+clf = KNeighborsClassifier(n_neighbors=5)
+clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
 
-x_min, x_max = norm[:, 0].min() - 5, norm[:, 0].max() + 5
-y_min, y_max = norm[:, 1].min() - 5, norm[:, 1].max() + 5
+
+x_min, x_max = norm[:, fe1].min() - 5, norm[:, fe1].max() + 5
+y_min, y_max = norm[:, fe2].min() - 5, norm[:, fe2].max() + 5
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
                      np.arange(y_min, y_max, h))
 Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
@@ -147,9 +171,9 @@ cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
 plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
-plt.scatter(norm[:, 0], norm[:, 1], c=targets, cmap=cmap_bold)
+plt.scatter(norm[:, fe1], norm[:, fe2], c=targets, cmap=cmap_bold)
 
-plt.scatter(aNorm[:, 0], aNorm[:, 1], c="y", cmap=cmap_bold, marker="*", s=500)
+plt.scatter(aNorm[:, fe1], aNorm[:, fe2], c="y", cmap=cmap_bold, marker="*", s=500)
 
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
