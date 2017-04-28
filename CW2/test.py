@@ -67,38 +67,6 @@ def normalise(matrix):
 
 
 
-#splits a matrix of all characters into "seperate" characters
-#e.g mags[0] might denote char 'S', m[1] - 'V', m[2] - 'V'
-def split(matrix):
-    char_type    = matrix.shape[0]
-    step         = round(matrix.shape[0] / 3)
-    # qs           = [[] for x in range(char_type)]
-    mag          = [[] for x in range(char_type)]
-
-    #uncommented for now as not sure whether works properly
-    #double check the positions as the transpose func is applied to t.
-    #return avrg magn
-    for i,s in zip(range(char_type), range(0, char_type, step)):
-        # qs[i]       = matrix[s:(s+step)]
-        mag[i]      = matrix[s:(s+step)]
-        #using stack to correlate each qs[0][0][0]to qs[0][1][0], qs[0][2][0] etc
-        t           = [0]*640
-        for sample in mag[i]:
-            t       = np.column_stack((t, sample))
-        #removing the zero row that is no longer necessery
-        t           = np.matrix(t.T[1:,:])
-        #calculating average magnitude of things for a class e.g. "S" char etc
-        average_mag = list(map(lambda x: x/t.shape[0], t))[0]
-        print ("T")
-        print(t)
-        print(' ')
-        print('Average magnitude ')
-        print(average_mag)
-
-    return mag
-
-
-
 #generates fourier space
 def read(char_name):
     f      = io.imread(char_name)   # read in image
@@ -124,6 +92,40 @@ def slice(old_matrix):
 
 
 
+#splits a matrix of all characters into "seperate" characters
+#e.g mags[0] might denote char 'S', m[1] - 'V', m[2] - 'V'
+def split(matrix):
+    char_type    = matrix.shape[0]
+    step         = round(matrix.shape[0] / 3)
+    # qs           = [[] for x in range(char_type)]
+    mag          = [[] for x in range(char_type)]
+
+    for i,s in zip(range(char_type), range(0, char_type, step)):
+        # qs[i]       = matrix[s:(s+step)]
+        mag[i]      = matrix[s:(s+step)]
+        t           = [0]*(matrix.shape[1])
+        for sample in mag[i]:
+            t       = np.column_stack((t, sample))
+        t           = np.matrix(t.T[1:,:])
+        # average_mag = list(map(lambda x: x/t.shape[0], t))[0]
+        #calc sum of each column and divide by the number of rows, add it to a list
+        average_mag = [[] for x in range(matrix.shape[1])]
+        for col,col_num in zip(t.T, range(matrix.shape[1])) : #looping through columns
+            average_mag[col_num] = np.sum(col)/t.shape[0]
+        print(' ')
+        print(' ')
+        print ("t:")
+        print(t)
+        print(' ')
+        print('Average magnitude ')
+        print(average_mag)
+        print(' ')
+        print(' ')
+
+    return mag
+
+
+
 #generates a matrix of magnitudes of all characters
 def gen_train_data():
     n = 0
@@ -144,9 +146,11 @@ def gen_train_data():
 data            = gen_train_data()
 print ("get_train_data returns magnitudes")
 print (data)
-print ("magnitude[0]]")
+print ("magnitude[0]")
 print (data[0])
-print ("magnitude[1]]")
+print ("magnitude[0][0]]")
+print (data[0][0])
+print ("magnitude[1]")
 print (data[1])
 data_split      = split(data) #contains all chars' fourier space
 
