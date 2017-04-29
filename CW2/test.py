@@ -13,6 +13,7 @@ from matplotlib.colors import ListedColormap
 from sklearn import neighbors, datasets
 from skimage.draw import polygon, circle
 from sklearn.neighbors import KNeighborsClassifier
+from scipy.spatial import Voronoi, voronoi_plot_2d
 
 
 
@@ -90,7 +91,7 @@ def ring():
     n[xx, yy] = 1
     xx, yy = circle(200, 320, 40)
     n[xx, yy] = 0
-    plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    #plt.matshow(n, fignum=100, cmap=plt.cm.gray)
     return n
 
 def get_characters_features():
@@ -130,6 +131,7 @@ def extract_features(mag):
     space[3] = np.multiply(mag, ring1)
     sumed = ([np.sum(space[0]), np.sum(space[1]), np.sum(space[2]), np.sum(space[3])])
     return sumed
+
 
 
 
@@ -183,6 +185,7 @@ print(aNorm)
 fe1 = 0
 fe2 = 3
 
+
 clf = KNeighborsClassifier(n_neighbors=5)
 clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
@@ -195,25 +198,18 @@ xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
 Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
 
 Z = Z.reshape(xx.shape)
-plt.figure()
+fig = plt.figure()
+bx = fig.add_subplot( 111 )
 
 cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
 cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
-plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+bx.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 #red - S
 
-plt.scatter(norm[:, fe1], norm[:, fe2], c=targets, cmap=cmap_bold)
-plt.scatter(normT[:, fe1], normT[:, fe2], c=targetsT, cmap=cmap_bold, marker="*", s=100)
-plt.scatter(aNorm[fe1], aNorm[fe2], c="y", cmap=cmap_bold, marker="s", s=100) # A character
-plt.scatter(bNorm[fe1], bNorm[fe2], c="y", cmap=cmap_bold, marker="D", s=100) # B character
+bx.scatter(norm[:, fe1], norm[:, fe2], c=targets, cmap=cmap_bold)
+bx.scatter(normT[:, fe1], normT[:, fe2], c=targetsT, cmap=cmap_bold, marker="*", s=100)
+bx.scatter(aNorm[fe1], aNorm[fe2], c="y", cmap=cmap_bold, marker="s", s=100) # A character
+bx.scatter(bNorm[fe1], bNorm[fe2], c="y", cmap=cmap_bold, marker="D", s=100) # B character
 
-plt.xlim(x_min, x_max)
-plt.ylim(y_min, y_max)
-
-plt.xlabel("feature " + str(fe1), fontsize=18)
-plt.ylabel("feature " + str(fe2), fontsize=18)
-
-
-plt.show()
