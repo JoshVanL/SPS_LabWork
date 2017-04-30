@@ -280,7 +280,7 @@ print(aNorm)
 ##
 ###################################################################
 fe1 = 0
-fe2 = 1
+fe2 = 3
 
 
 
@@ -291,7 +291,7 @@ fe2 = 1
 ###################################################################
 
 
-clf = KNeighborsClassifier(n_neighbors=5)
+clf = KNeighborsClassifier(n_neighbors=5, weights = 'distance')
 clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
 
@@ -312,11 +312,11 @@ cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 bx.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 
-###################################################################
-##
-## Multivariate normal boundary
-##
-###################################################################
+##################################################################
+#
+# Multivariate normal boundary
+#
+##################################################################
 
 X = norm[:, [fe1, fe2]]
 
