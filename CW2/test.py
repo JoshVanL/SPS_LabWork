@@ -111,13 +111,13 @@ def sector2():
 def bar():
     n = np.zeros((400, 640), dtype=float)
     x = np.array([170, 230, 230, 170])
-    y = np.array([0, 00, 600, 600])
+    y = np.array([0, 0, 640, 640])
     xx, yy = polygon(x, y)
     n[xx, yy] = 1
 
-    ## Uncomment to view feature polygon
-    #plt.matshow(n, fignum=100, cmap=plt.cm.gray)
-    #plt.show()
+    # Uncomment to view feature polygon
+    # plt.matshow(n, fignum=100, cmap=plt.cm.gray)
+    # plt.show()
     return n
 
 ###################################################################
@@ -280,7 +280,7 @@ print(aNorm)
 ##
 ###################################################################
 fe1 = 0
-fe2 = 3
+fe2 = 1
 
 
 
