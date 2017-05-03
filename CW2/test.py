@@ -5,6 +5,7 @@ from   sklearn.preprocessing  import normalize
 from   scipy.spatial          import Voronoi, voronoi_plot_2d
 from   scipy                  import stats
 from   skimage                import io
+from   sklearn                import svm
 import numpy                  as np
 import matplotlib.pyplot      as plt
 import itertools
@@ -219,7 +220,10 @@ for i in range(len(labels)):
         targets[i] = 2 #red
 
 norm = f / 10000
+print(" ")
+print ('NORM')
 print(norm)
+print(" ")
 print(targets)
 
 
@@ -254,6 +258,9 @@ print(targetsT)
 
 aChar = read("test/A1.GIF")
 aFeat = extract_features(aChar)
+print("afeat")
+print (aFeat)
+print(" ")
 bChar = read("test/B1.GIF")
 bFeat = extract_features(bChar)
 test = np.vstack((aFeat, bFeat))
@@ -280,19 +287,20 @@ print(aNorm)
 ##
 ###################################################################
 fe1 = 0
-fe2 = 3
+fe2 = 1
+
 
 
 
 ###################################################################
 ##
-## Applying nearest neighbour classifier
+## Applying SVC
 ##
 ###################################################################
 
-
-clf = KNeighborsClassifier(n_neighbors=5, weights = 'distance')
+clf = svm.SVC(kernel='linear')
 clf.fit(norm[:, [fe1,fe2]], targets)
+
 h = 0.01  # step size in the mesh
 
 
@@ -312,48 +320,79 @@ cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 bx.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 
+
+
+###################################################################
+##
+## Applying nearest neighbour classifier
+##
+###################################################################
+
+#
+# clf = KNeighborsClassifier(n_neighbors=15, weights = 'distance')
+# # clf = KNeighborsClassifier(n_neighbors=5)
+# clf.fit(norm[:, [fe1,fe2]], targets)
+# h = 0.01  # step size in the mesh
+#
+#
+# x_min, x_max = norm[:, fe1].min() - 5, norm[:, fe1].max() + 5
+# y_min, y_max = norm[:, fe2].min() - 5, norm[:, fe2].max() + 5
+# xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+#                      np.arange(y_min, y_max, h))
+# Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+#
+# Z = Z.reshape(xx.shape)
+# fig = plt.figure()
+# bx = fig.add_subplot( 111 )
+#
+# cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+# cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+#
+# bx.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+
 ##################################################################
 #
 # Multivariate normal boundary
 #
 ##################################################################
 
-X = norm[:, [fe1, fe2]]
-
-chars = np.zeros((3, 10, 2))
-for i in range(3):
-    for j in range(10):
-        chars[i][j][0] = X[j + (10*i)][0]
-        chars[i][j][1] = X[j + (10*i)][1]
-
-print(chars)
-means = np.empty((3,2))
-for i in range(3):
-    means[i] = np.mean(chars[i], axis=0)
-print(means)
-
-covs = []
-for i in range(3):
-    covs.append(np.cov(chars[i].T))
-print(covs)
-
-delta = 0.1
-x = np.arange(norm[:, fe1].min() - 5, norm[:, fe1].max() + 5 , delta)
-y = np.arange(norm[:, fe2].min() - 5, norm[:, fe2].max() + 5 , delta)
-X, Y = np.meshgrid(x,y)
-pos = np.dstack((X, Y))
-
-mv1 = multivariate_normal.pdf(pos, means[0], covs[0])
-mv2 = multivariate_normal.pdf(pos, means[1], covs[1])
-mv3 = multivariate_normal.pdf(pos, means[2], covs[2])
-
-r1 = mv1 - mv2
-r2 = mv1 - mv3
-r3 = mv2 - mv3
-
-plt.contour(X, Y, r1, 3, colors='blue')
-plt.contour(X, Y, r2, 3, colors='red' )
-plt.contour(X, Y, r3, 3, colors='green')
+# X = norm[:, [fe1, fe2]]
+#
+# chars = np.zeros((3, 10, 2))
+# for i in range(3):
+#     for j in range(10):
+#         chars[i][j][0] = X[j + (10*i)][0]
+#         chars[i][j][1] = X[j + (10*i)][1]
+#
+# print(chars)
+# means = np.empty((3,2))
+# for i in range(3):
+#     means[i] = np.mean(chars[i], axis=0)
+# print(means)
+#
+# covs = []
+# for i in range(3):
+#     covs.append(np.cov(chars[i].T))
+# print(covs)
+#
+# delta = 0.1
+# x = np.arange(norm[:, fe1].min() - 5, norm[:, fe1].max() + 5 , delta)
+# y = np.arange(norm[:, fe2].min() - 5, norm[:, fe2].max() + 5 , delta)
+# X, Y = np.meshgrid(x,y)
+# pos = np.dstack((X, Y))
+#
+# mv1 = multivariate_normal.pdf(pos, means[0], covs[0])
+# mv2 = multivariate_normal.pdf(pos, means[1], covs[1])
+# mv3 = multivariate_normal.pdf(pos, means[2], covs[2])
+#
+# r1 = mv1 - mv2
+# r2 = mv1 - mv3
+# r3 = mv2 - mv3
+#
+# plt.contour(X, Y, r1, 3, colors='blue')
+# plt.contour(X, Y, r2, 3, colors='red' )
+# plt.contour(X, Y, r3, 3, colors='green')
 
 
 ###################################################################
