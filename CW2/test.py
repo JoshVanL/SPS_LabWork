@@ -294,13 +294,25 @@ fe2 = 1
 
 ###################################################################
 ##
-## Applying SVC
+## Applying SVM
 ##
 ###################################################################
 
 clf = svm.SVC(kernel='linear')
-clf.fit(norm[:, [fe1,fe2]], targets)
 
+
+###################################################################
+##
+## Applying nearest neighbour classifier
+##
+###################################################################
+
+#
+# clf = KNeighborsClassifier(n_neighbors=15, weights = 'distance')
+# # clf = KNeighborsClassifier(n_neighbors=5)
+
+
+clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
 
 
@@ -318,37 +330,6 @@ cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
 cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
 bx.pcolormesh(xx, yy, Z, cmap=cmap_light)
-
-
-
-
-###################################################################
-##
-## Applying nearest neighbour classifier
-##
-###################################################################
-
-#
-# clf = KNeighborsClassifier(n_neighbors=15, weights = 'distance')
-# # clf = KNeighborsClassifier(n_neighbors=5)
-# clf.fit(norm[:, [fe1,fe2]], targets)
-# h = 0.01  # step size in the mesh
-#
-#
-# x_min, x_max = norm[:, fe1].min() - 5, norm[:, fe1].max() + 5
-# y_min, y_max = norm[:, fe2].min() - 5, norm[:, fe2].max() + 5
-# xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
-#                      np.arange(y_min, y_max, h))
-# Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-#
-# Z = Z.reshape(xx.shape)
-# fig = plt.figure()
-# bx = fig.add_subplot( 111 )
-#
-# cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
-# cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
-#
-# bx.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
 
 ##################################################################
