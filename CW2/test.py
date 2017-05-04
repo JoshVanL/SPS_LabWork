@@ -139,6 +139,8 @@ def ring():
     #plt.show()
     return n
 
+
+
 ###################################################################
 ##
 ## Extract training data features
@@ -287,7 +289,7 @@ print(aNorm)
 ##
 ###################################################################
 fe1 = 0
-fe2 = 1
+fe2 = 3
 
 
 
@@ -298,7 +300,9 @@ fe2 = 1
 ##
 ###################################################################
 
-clf = svm.SVC(kernel='linear')
+
+
+clf = svm.SVC(kernel='linear', C = .1)
 
 
 ###################################################################
@@ -307,10 +311,11 @@ clf = svm.SVC(kernel='linear')
 ##
 ###################################################################
 
-#
-# clf = KNeighborsClassifier(n_neighbors=15, weights = 'distance')
-# # clf = KNeighborsClassifier(n_neighbors=5)
 
+# clf = KNeighborsClassifier(n_neighbors=15, weights = 'distance')
+
+
+###################################################################
 
 clf.fit(norm[:, [fe1,fe2]], targets)
 h = 0.01  # step size in the mesh
